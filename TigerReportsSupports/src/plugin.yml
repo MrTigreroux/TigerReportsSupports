@@ -1,0 +1,6 @@
+name: TigerReportsSupports
+version: 1.0
+description: Adds supports to TigerReports plugin / Ajoute des supports au plugin TigerReports.
+author: MrTigreroux
+main: fr.mrtigreroux.tigerreportssupports.TigerReportsSupports
+depend: [TigerReports]

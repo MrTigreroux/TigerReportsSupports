@@ -1,0 +1,12 @@
+TigerReportsSupports:
+  Version: 1.7+ spigot
+  Author: MrTigreroux
+  Description: Adds supports to TigerReports plugin / Ajoute des supports au plugin TigerReports.
+Config:
+  Discord:
+    Enabled: false
+    Token: <token>
+    # Discord bot token / Token du bot Discord
+    Channel: 0
+    # Text Channel ID for the alerts / Identifiant du canal texte pour les alertes
+  
