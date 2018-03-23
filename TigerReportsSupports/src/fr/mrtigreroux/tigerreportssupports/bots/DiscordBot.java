@@ -6,8 +6,8 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Logger;
 
+import ch.qos.logback.classic.Logger;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -35,8 +35,16 @@ public class DiscordBot {
 		try {
 			Logger logger = (Logger) LoggerFactory.getLogger("net.dv8tion.jda");
 			logger.setLevel(ch.qos.logback.classic.Level.WARN);
+		} catch (Exception ignored) {}
+		
+		try {
 			bot = new JDABuilder(AccountType.BOT).setToken(ConfigFile.CONFIG.get().getString("Config.Discord.Token")).addEventListener(new DiscordListener()).buildBlocking();
 			setChannel();
+			String newVersion = TigerReportsSupports.getWebManager().getNewVersion();
+			if(newVersion != null) {
+				boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
+				c.sendMessage(english ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__" : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__").queue();
+			}
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.WARNING, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"));
 			e.printStackTrace();

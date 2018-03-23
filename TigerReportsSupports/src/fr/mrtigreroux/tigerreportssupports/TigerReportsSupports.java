@@ -12,6 +12,7 @@ import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
 import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 import fr.mrtigreroux.tigerreportssupports.listeners.ReportListener;
+import fr.mrtigreroux.tigerreportssupports.managers.WebManager;
 
 /**
  * @author MrTigreroux
@@ -20,6 +21,7 @@ import fr.mrtigreroux.tigerreportssupports.listeners.ReportListener;
 public class TigerReportsSupports extends JavaPlugin {
 
 	private static TigerReportsSupports instance;
+	private static WebManager webManager = null;
 	public static DiscordBot discordBot = null;
 	
 	public static void load() {
@@ -34,7 +36,7 @@ public class TigerReportsSupports extends JavaPlugin {
 		if(!pm.getPlugin("TigerReports").isEnabled()) {
 			Logger logger = Bukkit.getLogger();
 			logger.log(Level.SEVERE, "------------------------------------------------------");
-			logger.log(Level.SEVERE, "[TigerReportsSupports] Plugin TigerReports must be installed.");
+			logger.log(Level.SEVERE, "[TigerReportsSupports] The plugin TigerReports must be installed.");
 			logger.log(Level.SEVERE, "You can download it here:");
 			logger.log(Level.SEVERE, "https://www.spigotmc.org/resources/tigerreports.25773/");
 			logger.log(Level.SEVERE, "------------------------------------------------------");
@@ -50,7 +52,7 @@ public class TigerReportsSupports extends JavaPlugin {
 			Logger logger = Bukkit.getLogger();
 			logger.log(Level.SEVERE, "------------------------------------------------------");
 			if(ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
-				logger.log(Level.SEVERE, "[TigerReportsSupports] File plugin.yml has been edited");
+				logger.log(Level.SEVERE, "[TigerReportsSupports] The file plugin.yml has been edited");
 				logger.log(Level.SEVERE, "without authorization.");
 			} else {
 				logger.log(Level.SEVERE, "[TigerReportsSupports] Le fichier plugin.yml a ete modifie");
@@ -59,6 +61,9 @@ public class TigerReportsSupports extends JavaPlugin {
 			logger.log(Level.SEVERE, "------------------------------------------------------");
 			Bukkit.shutdown();
 		}
+		
+		webManager = new WebManager(this);
+		webManager.initialize();
 		
 		if(ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
 			discordBot = new DiscordBot();
@@ -73,6 +78,10 @@ public class TigerReportsSupports extends JavaPlugin {
 	
 	public static TigerReportsSupports getInstance() {
 		return instance;
+	}
+	
+	public static WebManager getWebManager() {
+		return webManager;
 	}
 	
 	public static DiscordBot getDiscordBot() {
