@@ -6,6 +6,6 @@
     Title: "Report #_Id_"
     Server: "Serveur"
     Date: "Date"
-    Signalman: "Signaleur"
+    Reporter: "Signaleur"
     Reported: "Signalé"
     Reason: "Raison"

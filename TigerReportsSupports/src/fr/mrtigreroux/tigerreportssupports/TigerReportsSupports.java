@@ -21,7 +21,7 @@ import fr.mrtigreroux.tigerreportssupports.managers.WebManager;
 public class TigerReportsSupports extends JavaPlugin {
 
 	private static TigerReportsSupports instance;
-	private static WebManager webManager = null;
+	private static WebManager webManager;
 	public static DiscordBot discordBot = null;
 	
 	public static void load() {

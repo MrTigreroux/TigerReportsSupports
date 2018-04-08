@@ -95,7 +95,7 @@ public class DiscordBot {
 		alert.setAuthor(messages.getString(path+"Title").replace("_Id_", Integer.toString(r.getId())), null, "https://i.imgur.com/EXonLKM.png");
 		alert.addField(messages.getString(path+"Server"), server, true);
 		alert.addField(messages.getString(path+"Date"), r.getDate(), true);
-		alert.addField(messages.getString(path+"Signalman"), r.getPlayerName("Signalman", false, false), true);
+		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), true);
 		alert.addField(messages.getString(path+"Reported"), r.getPlayerName("Reported", false, false), true);
 		alert.addField(messages.getString(path+"Reason"), r.getReason(false), false);
 		
