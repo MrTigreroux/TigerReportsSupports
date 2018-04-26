@@ -47,16 +47,16 @@ public class WebManager {
 			if(main.getDescription().getVersion().equals(newVersion)) newVersion = null;
 			else {
 				Logger logger = Bukkit.getLogger();
-        		logger.log(Level.WARNING, "------------------------------------------------------");
-        		if(ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
-	        		logger.log(Level.WARNING, "[TigerReportsSupports] The plugin has been updated.");
-	        		logger.log(Level.WARNING, "The new version "+newVersion+" is available on:");
-        		} else {
-	        		logger.log(Level.WARNING, "[TigerReportsSupports] Le plugin a ete mis a jour.");
-	        		logger.log(Level.WARNING, "La nouvelle version "+newVersion+" est disponible ici:");
-        		}
-        		logger.log(Level.WARNING, "https://www.spigotmc.org/resources/tigerreportssupports.54612/");
-        		logger.log(Level.WARNING, "------------------------------------------------------");
+				logger.log(Level.WARNING, "------------------------------------------------------");
+				if(ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
+					logger.log(Level.WARNING, "[TigerReportsSupports] The plugin has been updated.");
+					logger.log(Level.WARNING, "The new version "+newVersion+" is available on:");
+				} else {
+					logger.log(Level.WARNING, "[TigerReportsSupports] Le plugin a ete mis a jour.");
+					logger.log(Level.WARNING, "La nouvelle version "+newVersion+" est disponible ici:");
+				}
+				logger.log(Level.WARNING, "https://www.spigotmc.org/resources/tigerreportssupports.54612/");
+				logger.log(Level.WARNING, "------------------------------------------------------");
 			}
 		} catch (Exception ignored) {}
 	}

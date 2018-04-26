@@ -53,7 +53,7 @@ public class DiscordBot {
 	
 	private void setChannel() {
 		c = (c = bot.getTextChannelById(ConfigFile.CONFIG.get().getString("Config.Discord.Channel"))) != null ? c : bot.getTextChannels().get(0);
-		if(canSendMessage()) c.sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Connected").replace("_Channel_", c.getAsMention())).queue();
+		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Connected").replace("_Channel_", c.getAsMention()));
 	}
 	
 	private boolean canSendMessage() {
@@ -62,6 +62,10 @@ public class DiscordBot {
 			return false;
 		}
 		return true;
+	}
+	
+	private void sendMessage(String message) {
+		if(!message.isEmpty() && canSendMessage()) c.sendMessage(message).queue();
 	}
 	
 	public void onCommand(TextChannel channel, String command, String user) {
@@ -104,7 +108,7 @@ public class DiscordBot {
 	
 	public void disconnect() {
 		TigerReportsSupports.discordBot = null;
-		if(canSendMessage()) c.sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Disconnected")).queue();
+		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Disconnected"));
 		bot.shutdown();
 	}
 	
