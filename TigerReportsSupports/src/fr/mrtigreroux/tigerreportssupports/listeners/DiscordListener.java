@@ -19,7 +19,7 @@ public class DiscordListener implements EventListener {
 			if(!e.getChannelType().equals(ChannelType.TEXT) || e.getAuthor().equals(e.getJDA().getSelfUser())) return;
 			
 			String message = e.getMessage().getContentRaw().toLowerCase();
-			if(message.startsWith("/tigerreports ")) TigerReportsSupports.getDiscordBot().onCommand(e.getTextChannel(), message.toLowerCase().substring(14), e.getAuthor().getAsMention());
+			if(message.startsWith("/tigerreports ")) TigerReportsSupports.getDiscordBot().onCommand(e.getTextChannel(), message.substring(14), e.getAuthor().getAsMention());
 		}
 	}
 

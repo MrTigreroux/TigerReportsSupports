@@ -1,6 +1,7 @@
 package fr.mrtigreroux.tigerreportssupports.bots;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -46,13 +47,22 @@ public class DiscordBot {
 				c.sendMessage(english ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__" : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__").queue();
 			}
 		} catch (Exception e) {
-			Bukkit.getLogger().log(Level.WARNING, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"));
+			Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"));
 			e.printStackTrace();
 		}
 	}
 	
 	private void setChannel() {
-		c = (c = bot.getTextChannelById(ConfigFile.CONFIG.get().getString("Config.Discord.Channel"))) != null ? c : bot.getTextChannels().get(0);
+		String channel = ConfigFile.CONFIG.get().getString("Config.Discord.Channel", "");
+		if(!channel.isEmpty()) c = bot.getTextChannelById(channel);
+		if(c == null) {
+			List<TextChannel> channels = bot.getTextChannels();
+			if(!channels.isEmpty()) c = channels.get(0);
+			else {
+				Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("The Discord bot could not find any text channel on the Discord server.", "Le bot Discord n'a pas pu trouver un seul canal de texte sur le serveur Discord."));
+				return;
+			}
+		}
 		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Connected").replace("_Channel_", c.getAsMention()));
 	}
 	

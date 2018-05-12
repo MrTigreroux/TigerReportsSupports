@@ -1,11 +1,11 @@
 ﻿DiscordMessages: # French messages by MrTigreroux. If you are in Minecraft 1.8 or less, encode in ANSI, else encode in UTF-8.
-  Connected: "Connecté sur le canal _Channel_."
-  Disconnected: "Déconnecté."
+  Connected: "Connect\xe9 sur le canal _Channel_."
+  Disconnected: "D\xe9connect\xe9."
   Invalid-command: "_User_: Commande inconnue. Les commandes disponibles sont: `/tigerreports <reload / stop>`."
   Alert:
     Title: "Report #_Id_"
     Server: "Serveur"
     Date: "Date"
     Reporter: "Signaleur"
-    Reported: "Signalé"
+    Reported: "Signal\xe9"
     Reason: "Raison"
