@@ -1,0 +1,12 @@
+﻿DiscordMessages: # English messages by MrTigreroux. If you are in Minecraft 1.8 or less, encode in ANSI, else encode in UTF-8.
+  Connected: "Connected on channel _Channel_."
+  Disconnected: "Disconnected."
+  Invalid-command: "_User_: Invalid command. Available commands are: `/tigerreports <reload / stop>`."
+  No-permission: "_User_: You are not allowed to use this command."
+  Alert:
+    Title: "Report #_Id_"
+    Server: "Server"
+    Date: "Date"
+    Reporter: "Reporter"
+    Reported: "Reported"
+    Reason: "Reason"

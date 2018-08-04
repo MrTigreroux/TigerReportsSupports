@@ -15,8 +15,9 @@ public class ReportListener implements Listener {
 
 	@EventHandler
 	public void onReport(NewReportEvent e) {
-		DiscordBot discordBot = TigerReportsSupports.getDiscordBot();
-		if(discordBot != null) discordBot.notifyReport(e.getServer(), e.getReport());
+		DiscordBot discordBot = TigerReportsSupports.getInstance().getDiscordBot();
+		if(discordBot != null)
+			discordBot.notifyReport(e.getServer(), e.getReport());
 	}
 	
 }

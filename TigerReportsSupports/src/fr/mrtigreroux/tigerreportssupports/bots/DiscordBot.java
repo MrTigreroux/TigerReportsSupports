@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import fr.mrtigreroux.tigerreports.objects.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
@@ -40,26 +41,27 @@ public class DiscordBot {
 		
 		try {
 			bot = new JDABuilder(AccountType.BOT).setToken(ConfigFile.CONFIG.get().getString("Config.Discord.Token")).addEventListener(new DiscordListener()).buildBlocking();
-			setChannel();
-			String newVersion = TigerReportsSupports.getWebManager().getNewVersion();
+			updateChannel();
+			String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
 			if(newVersion != null) {
 				boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
 				c.sendMessage(english ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__" : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__").queue();
 			}
-		} catch (Exception e) {
-			Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"));
-			e.printStackTrace();
+		} catch (Exception ex) {
+			Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"), ex);
 		}
 	}
 	
-	private void setChannel() {
+	private void updateChannel() {
 		String channel = ConfigFile.CONFIG.get().getString("Config.Discord.Channel", "");
-		if(!channel.isEmpty()) c = bot.getTextChannelById(channel);
+		if(!channel.isEmpty())
+			c = bot.getTextChannelById(channel);
 		if(c == null) {
 			List<TextChannel> channels = bot.getTextChannels();
-			if(!channels.isEmpty()) c = channels.get(0);
-			else {
-				Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("The Discord bot could not find any text channel on the Discord server.", "Le bot Discord n'a pas pu trouver un seul canal de texte sur le serveur Discord."));
+			if(!channels.isEmpty()) {
+				c = channels.get(0);
+			} else {
+				Bukkit.getLogger().severe(ConfigUtils.getInfoMessage("The Discord bot could not find any text channel on the Discord server.", "Le bot Discord n'a pas pu trouver un seul canal de texte sur le serveur Discord."));
 				return;
 			}
 		}
@@ -68,17 +70,23 @@ public class DiscordBot {
 	
 	private boolean canSendMessage() {
 		if(!c.getGuild().getSelfMember().hasPermission(c, Permission.MESSAGE_WRITE)) {
-			Bukkit.getLogger().log(Level.WARNING, ConfigUtils.getInfoMessage("The Discord bot doesn't have the permission to send messages in channel #", "Le bot Discord n'a pas la permission d'envoyer des messages dans le canal #")+c.getName());
+			Bukkit.getLogger().warning(ConfigUtils.getInfoMessage("The Discord bot doesn't have the permission to send messages in channel #", "Le bot Discord n'a pas la permission d'envoyer des messages dans le canal #")+c.getName());
 			return false;
 		}
 		return true;
 	}
 	
 	private void sendMessage(String message) {
-		if(!message.isEmpty() && canSendMessage()) c.sendMessage(message).queue();
+		if(!message.isEmpty() && canSendMessage())
+			c.sendMessage(message).queue();
 	}
 	
-	public void onCommand(TextChannel channel, String command, String user) {
+	public void onCommand(TextChannel channel, String command, User u) {
+		if(!ConfigFile.CONFIG.get().getStringList("Config.Discord.Managers").contains(u.getName()+"#"+u.getDiscriminator())) {
+			if(canSendMessage())
+				channel.sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.No-permission").replace("_User_", u.getAsMention())).queue();
+			return;
+		}
 		switch(command) {
 			case "reload":
 				TigerReportsSupports.load();
@@ -86,15 +94,21 @@ public class DiscordBot {
 					disconnect();
 					return;
 				}
-				setChannel();
+				updateChannel();
 				break;
-			case "stop": disconnect(); break;
-			default: if(canSendMessage()) channel.sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Invalid-command").replace("_User_", user)).queue(); break;
+			case "stop":
+				disconnect();
+				break;
+			default:
+				if(canSendMessage())
+					channel.sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Invalid-command").replace("_User_", u.getAsMention())).queue();
+				break;
 		} 
 	}
 	
 	public void notifyReport(String server, Report r) {
-		if(!canSendMessage()) return;
+		if(!canSendMessage())
+			return;
 		if(!c.getGuild().getSelfMember().hasPermission(c, Permission.MESSAGE_EMBED_LINKS)) {
 			c.sendMessage((ConfigUtils.getInfoLanguage().equalsIgnoreCase("English") ? "I can't send embeds in this channel. Please give me the permission." : "Je ne peux pas envoyer des embeds dans ce canal. Merci de me donner la permission.")).queue();
 			return;
@@ -117,7 +131,7 @@ public class DiscordBot {
 	}
 	
 	public void disconnect() {
-		TigerReportsSupports.discordBot = null;
+		TigerReportsSupports.getInstance().removeDiscordBot();
 		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Disconnected"));
 		bot.shutdown();
 	}

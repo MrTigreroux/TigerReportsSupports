@@ -6,12 +6,12 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
+import fr.mrtigreroux.tigerreports.utils.MessageUtils;
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 
 /**
@@ -20,11 +20,12 @@ import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 
 public class WebManager {
 
-	private final TigerReportsSupports main;
+	private final TigerReportsSupports plugin;
 	private String newVersion = null;
 	
-	public WebManager(TigerReportsSupports main) {
-		this.main = main;
+	public WebManager(TigerReportsSupports plugin) {
+		this.plugin = plugin;
+		initialize();
 	}
 	
 	public String getNewVersion() {
@@ -44,19 +45,20 @@ public class WebManager {
 	public void initialize() {
 		try {
 			newVersion = sendQuery("https://api.spigotmc.org/legacy/update.php?resource=54612", null);
-			if(main.getDescription().getVersion().equals(newVersion)) newVersion = null;
-			else {
+			if(plugin.getDescription().getVersion().equals(newVersion)) {
+				newVersion = null;
+			} else {
 				Logger logger = Bukkit.getLogger();
-				logger.log(Level.WARNING, "------------------------------------------------------");
+				logger.warning(MessageUtils.LINE);
 				if(ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
-					logger.log(Level.WARNING, "[TigerReportsSupports] The plugin has been updated.");
-					logger.log(Level.WARNING, "The new version "+newVersion+" is available on:");
+					logger.warning("[TigerReportsSupports] The plugin has been updated.");
+					logger.warning("The new version "+newVersion+" is available on:");
 				} else {
-					logger.log(Level.WARNING, "[TigerReportsSupports] Le plugin a ete mis a jour.");
-					logger.log(Level.WARNING, "La nouvelle version "+newVersion+" est disponible ici:");
+					logger.warning("[TigerReportsSupports] Le plugin a ete mis a jour.");
+					logger.warning("La nouvelle version "+newVersion+" est disponible ici:");
 				}
-				logger.log(Level.WARNING, "https://www.spigotmc.org/resources/tigerreportssupports.54612/");
-				logger.log(Level.WARNING, "------------------------------------------------------");
+				logger.warning("https://www.spigotmc.org/resources/tigerreportssupports.54612/");
+				logger.warning(MessageUtils.LINE);
 			}
 		} catch (Exception ignored) {}
 	}
