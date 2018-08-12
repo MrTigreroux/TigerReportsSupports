@@ -11,4 +11,6 @@ Config:
     # Text Channel ID for the alerts / Identifiant du canal texte pour les alertes
     Managers: none
 #     - pseudo#1234
-    # List of Discord users who can use /tigerreports command / Liste des utilisateurs du Discord qui peuvent utiliser la commande /tigerreports.
+    # List of Discord users who can use /tigerreports command / Liste des utilisateurs du Discord qui peuvent utiliser la commande /tigerreports
+    ServerInfo: yes
+    # Display the server in alerts / Afficher le serveur dans les alertes

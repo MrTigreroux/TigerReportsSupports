@@ -37,7 +37,7 @@ public class TigerReportsSupports extends JavaPlugin {
 		instance = this;
 		
 		PluginManager pm = Bukkit.getPluginManager();
-		if(!pm.getPlugin("TigerReports").isEnabled()) {
+		if(!pm.isPluginEnabled("TigerReports")) {
 			Logger logger = Bukkit.getLogger();
 			logger.severe(MessageUtils.LINE);
 			logger.severe("[TigerReportsSupports] The plugin TigerReports must be installed.");
@@ -64,6 +64,7 @@ public class TigerReportsSupports extends JavaPlugin {
 			}
 			logger.severe(MessageUtils.LINE);
 			Bukkit.shutdown();
+			return;
 		}
 		
 		webManager = new WebManager(this);

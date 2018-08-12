@@ -18,6 +18,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import fr.mrtigreroux.tigerreports.objects.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
+import fr.mrtigreroux.tigerreports.utils.MessageUtils;
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 import fr.mrtigreroux.tigerreportssupports.listeners.DiscordListener;
@@ -121,8 +122,10 @@ public class DiscordBot {
 		FileConfiguration messages = ConfigFile.MESSAGES.get();
 		String path = "DiscordMessages.Alert.";
 		alert.setAuthor(messages.getString(path+"Title").replace("_Id_", Integer.toString(r.getId())), null, "https://i.imgur.com/EXonLKM.png");
-		alert.addField(messages.getString(path+"Server"), server, true);
-		alert.addField(messages.getString(path+"Date"), r.getDate(), true);
+		boolean serverInfo = ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
+		if(serverInfo)
+			alert.addField(messages.getString(path+"Server"), MessageUtils.getServerName(server), true);
+		alert.addField(messages.getString(path+"Date"), r.getDate(), serverInfo);
 		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), true);
 		alert.addField(messages.getString(path+"Reported"), r.getPlayerName("Reported", false, false), true);
 		alert.addField(messages.getString(path+"Reason"), r.getReason(false), false);
