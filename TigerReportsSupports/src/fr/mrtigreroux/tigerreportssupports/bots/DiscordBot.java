@@ -9,13 +9,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import fr.mrtigreroux.tigerreports.objects.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreports.utils.MessageUtils;
@@ -41,7 +41,8 @@ public class DiscordBot {
 		} catch (Exception ignored) {}
 		
 		try {
-			bot = new JDABuilder(AccountType.BOT).setToken(ConfigFile.CONFIG.get().getString("Config.Discord.Token")).addEventListener(new DiscordListener()).buildBlocking();
+			bot = new JDABuilder(AccountType.BOT).setToken(ConfigFile.CONFIG.get().getString("Config.Discord.Token")).addEventListeners(new DiscordListener()).build();
+			bot.awaitReady();
 			updateChannel();
 			String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
 			if(newVersion != null) {

@@ -1,11 +1,11 @@
 package fr.mrtigreroux.tigerreportssupports.listeners;
 
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 /**
  * @author MrTigreroux
@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.hooks.EventListener;
 public class DiscordListener implements EventListener {
 
 	@Override
-	public void onEvent(Event event) {
+	public void onEvent(GenericEvent event) {
 		if(event instanceof MessageReceivedEvent) {
 			MessageReceivedEvent e = (MessageReceivedEvent) event;
 			if(e.getChannelType().equals(ChannelType.TEXT)) {
