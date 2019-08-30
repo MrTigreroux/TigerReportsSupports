@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import fr.mrtigreroux.tigerreports.objects.Report;
@@ -49,6 +50,8 @@ public class DiscordBot {
 				boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
 				c.sendMessage(english ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__" : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__").queue();
 			}
+			
+			updatePlayingStatus();
 		} catch (Exception ex) {
 			Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"), ex);
 		}
@@ -68,6 +71,12 @@ public class DiscordBot {
 			}
 		}
 		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Connected").replace("_Channel_", c.getAsMention()));
+	}
+	
+	private void updatePlayingStatus() {
+		String status = ConfigFile.CONFIG.get().getString("Config.Discord.PlayingStatus", "");
+		if (status != null && !status.isEmpty())
+			bot.getPresence().setActivity(Activity.playing(status));
 	}
 	
 	private boolean canSendMessage() {
@@ -97,6 +106,7 @@ public class DiscordBot {
 					return;
 				}
 				updateChannel();
+				updatePlayingStatus();
 				break;
 			case "stop":
 				disconnect();

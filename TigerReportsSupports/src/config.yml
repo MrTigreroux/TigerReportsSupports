@@ -14,3 +14,5 @@ Config:
     # List of Discord users who can use /tigerreports command / Liste des utilisateurs du Discord qui peuvent utiliser la commande /tigerreports
     ServerInfo: yes
     # Display the server in alerts / Afficher le serveur dans les alertes
+    PlayingStatus: "Minecraft server"
+    # Set the played game message (the activity "Playing at ...") on Discord / Définit le jeu actuellement joué (l'activité "Joue à ...") sur Discord
