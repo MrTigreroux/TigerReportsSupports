@@ -10,3 +10,4 @@
     Reporter: "Reporter"
     Reported: "Reported"
     Reason: "Reason"
+  Report-processed: "Report #_Id_ has been processed by _Staff_."

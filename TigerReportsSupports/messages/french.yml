@@ -10,3 +10,4 @@
     Reporter: "Signaleur"
     Reported: "Signal\xe9"
     Reason: "Raison"
+  Report-processed: "Le Report #_Id_ a été traité par _Staff_."
