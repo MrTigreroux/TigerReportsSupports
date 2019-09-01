@@ -1,6 +1,5 @@
 package fr.mrtigreroux.tigerreportssupports.bots;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -146,54 +145,64 @@ public class DiscordBot {
 		}
 
 		EmbedBuilder alert = new EmbedBuilder();
-		alert.setColor(Color.ORANGE);
+		alert.setColor(Status.WAITING.getColor());
 		alert.setThumbnail("https://i.imgur.com/3NDcs3t.png");
 
 		FileConfiguration messages = ConfigFile.MESSAGES.get();
 		String path = "DiscordMessages.Alert.";
-		alert.setAuthor(messages.getString(path+"Title").replace("_Id_", Integer.toString(r.getId())), null, "https://i.imgur.com/EXonLKM.png");
+		alert.setAuthor(messages.getString(path+"Title").replace("_Id_", Integer.toString(r.getId())), null, Status.WAITING.getIcon());
 		boolean serverInfo = ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
 		if (serverInfo)
 			alert.addField(messages.getString(path+"Server"), MessageUtils.getServerName(server), true);
 		alert.addField(messages.getString(path+"Date"), r.getDate(), serverInfo);
 		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), true);
-		alert.addField(messages.getString(path+"Reported"), r.getPlayerName("Reported", false, false), true);
+		alert.addField(messages.getString(path+"Reported"), "TigerBot", true);
 		alert.addField(messages.getString(path+"Reason"), r.getReason(false), false);
 
 		c.sendMessage(alert.build()).queue();
 	}
 
 	public void notifyProcessReport(Report r, String staff) {
-		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Report-processed").replace("_Id_", Integer.toString(r.getId())).replace("_Staff_", staff != null ? staff : r.getProcessor()));
+		sendMessage(ConfigFile.MESSAGES.get()
+				.getString("DiscordMessages.Report-processed")
+				.replace("_Id_", Integer.toString(r.getId()))
+				.replace("_Staff_", staff != null ? staff : r.getProcessor()));
+		updateReportStatus(r, Status.DONE);
+	}
+
+	public void updateReportStatus(Report r, Status status) {
 		try {
 			String reportId = Integer.toString(r.getId());
 			String configTitle = ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Title");
 			int idIndex = configTitle.indexOf("_Id_");
-			
+
 			List<Message> retrievedMessages = c.getHistory().retrievePast(100).complete();
-			
-			for(Message msg : retrievedMessages) {
+
+			for (Message msg : retrievedMessages) {
 				if (!msg.getAuthor().isBot())
 					continue;
-				
+
 				List<MessageEmbed> embeds = msg.getEmbeds();
-				if(embeds == null || embeds.isEmpty())
+				if (embeds == null || embeds.isEmpty())
 					continue;
 				MessageEmbed alert = embeds.get(0);
 				AuthorInfo author = alert.getAuthor();
-				if(author == null)
+				if (author == null)
 					continue;
-				
+
 				String title = author.getName();
-				if(title == null)
+				if (title == null)
 					continue;
-				
+
 				String id = title.substring(idIndex);
-				if(configTitle.length() >= idIndex+4)
+				if (configTitle.length() >= idIndex+4)
 					id = id.replace(configTitle.substring(idIndex+4, configTitle.length()), "");
-				
-				if(id.equals(reportId)) {
-					msg.addReaction("U+2705").queue();
+
+				if (id.equals(reportId)) {
+					EmbedBuilder updatedAlert = new EmbedBuilder(alert);
+					updatedAlert.setColor(status.getColor());
+					updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
+					msg.editMessage(updatedAlert.build()).queue();
 					break;
 				}
 			}
@@ -203,7 +212,9 @@ public class DiscordBot {
 	public void disconnect() {
 		TigerReportsSupports.getInstance().removeDiscordBot();
 		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Disconnected"));
-		bot.shutdown();
+		try {
+			bot.shutdown();
+		} catch (Exception ignored) {}
 	}
 
 }
