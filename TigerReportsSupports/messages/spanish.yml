@@ -1,0 +1,13 @@
+﻿DiscordMessages: # Spanish messages by zuhir. If you are in Minecraft 1.8 or less, encode in ANSI, else encode in UTF-8. / Mensajes en español por zuhir. Si estas en Minecraft 1.8 o inferior, codificalo en ANSI, sino codificalo en UTF-8.
+  Connected: "Conectado en el canal _Channel_."
+  Disconnected: "Desconectado."
+  Invalid-command: "_User_: Comando invalido. Los comandos disponibles son: `/tigerreports <reload / stop>`."
+  No-permission: "_User_: No tienes permiso para usar este comando."
+  Alert:
+    Title: "Reporte #_Id_"
+    Server: "Servidor"
+    Date: "Fecha"
+    Reporter: "Reportado por"
+    Reported: "Jugador reportado"
+    Reason: "Raz\u00F3n"
+  Report-processed: "El reporte #_Id_ ha sido procesado por _Staff_."

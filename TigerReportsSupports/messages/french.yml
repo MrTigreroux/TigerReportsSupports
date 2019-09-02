@@ -1,4 +1,4 @@
-﻿DiscordMessages: # French messages by MrTigreroux. If you are in Minecraft 1.8 or less, encode in ANSI, else encode in UTF-8.
+﻿DiscordMessages: # French messages by MrTigreroux. If you are in Minecraft 1.8 or less, encode in ANSI, else encode in UTF-8.  / Si vous etes en Minecraft 1.8 ou inférieur, encodez en ANSI, sinon encodez en UTF-8.
   Connected: "Connect\xe9 sur le canal _Channel_."
   Disconnected: "D\xe9connect\xe9."
   Invalid-command: "_User_: Commande inconnue. Les commandes disponibles sont: `/tigerreports <reload / stop>`."
@@ -10,4 +10,4 @@
     Reporter: "Signaleur"
     Reported: "Signal\xe9"
     Reason: "Raison"
-  Report-processed: "Le Report #_Id_ a été traité par _Staff_."
+  Report-processed: "Le Report #_Id_ a \xe9t\xe9 trait\xe9 par _Staff_."
