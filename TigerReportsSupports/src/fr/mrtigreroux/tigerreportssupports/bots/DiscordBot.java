@@ -156,7 +156,7 @@ public class DiscordBot {
 			alert.addField(messages.getString(path+"Server"), MessageUtils.getServerName(server), true);
 		alert.addField(messages.getString(path+"Date"), r.getDate(), serverInfo);
 		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), true);
-		alert.addField(messages.getString(path+"Reported"), "TigerBot", true);
+		alert.addField(messages.getString(path+"Reported"), r.getPlayerName("Reported", false, false), true);
 		alert.addField(messages.getString(path+"Reason"), r.getReason(false), false);
 
 		c.sendMessage(alert.build()).queue();
