@@ -5,6 +5,7 @@
   No-permission: "_User_: No tienes permiso para usar este comando."
   Alert:
     Title: "Reporte #_Id_"
+    Status: "Estado"
     Server: "Servidor"
     Date: "Fecha"
     Reporter: "Reportado por"

@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageEmbed.AuthorInfo;
+import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import fr.mrtigreroux.tigerreports.objects.Report;
@@ -151,11 +152,12 @@ public class DiscordBot {
 		FileConfiguration messages = ConfigFile.MESSAGES.get();
 		String path = "DiscordMessages.Alert.";
 		alert.setAuthor(messages.getString(path+"Title").replace("_Id_", Integer.toString(r.getId())), null, Status.WAITING.getIcon());
+		alert.addField(messages.getString(path+"Status"), fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getWord(null).replaceAll("§.", ""), false);
 		boolean serverInfo = ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
 		if (serverInfo)
 			alert.addField(messages.getString(path+"Server"), MessageUtils.getServerName(server), true);
 		alert.addField(messages.getString(path+"Date"), r.getDate(), serverInfo);
-		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), true);
+		alert.addField(messages.getString(path+"Reporter"), r.getPlayerName("Reporter", false, false), false);
 		alert.addField(messages.getString(path+"Reported"), r.getPlayerName("Reported", false, false), true);
 		alert.addField(messages.getString(path+"Reason"), r.getReason(false), false);
 
@@ -201,6 +203,8 @@ public class DiscordBot {
 				if (id.equals(reportId)) {
 					EmbedBuilder updatedAlert = new EmbedBuilder(alert);
 					updatedAlert.setColor(status.getColor());
+					List<Field> fields = updatedAlert.getFields();
+					fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"), r.getStatus().getWord(r.getProcessor()).replaceAll("§.", ""), false));
 					updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
 					msg.editMessage(updatedAlert.build()).queue();
 					break;
