@@ -8,7 +8,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -45,22 +44,34 @@ public class DiscordBot {
 		} catch (Exception ignored) {}
 
 		try {
-			bot = new JDABuilder(AccountType.BOT).setToken(ConfigFile.CONFIG.get().getString("Config.Discord.Token"))
+			bot = JDABuilder.createDefault(ConfigFile.CONFIG.get().getString("Config.Discord.Token"))
 					.addEventListeners(new DiscordListener())
 					.build();
-			bot.awaitReady();
-			updateChannel();
-			String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
-			if (newVersion != null) {
-				boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
-				c.sendMessage(english	? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion
-						+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
-										: "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion
-												+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
-						.queue();
-			}
+			Bukkit.getScheduler().runTaskAsynchronously(TigerReportsSupports.getInstance(), new Runnable() {
 
-			updatePlayingStatus();
+				@Override
+				public void run() {
+					try {
+						bot.awaitReady();
+					} catch (InterruptedException ex) {
+						Bukkit.getLogger().log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"), ex);
+					}
+					updateChannel();
+					String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
+					if (newVersion != null) {
+						boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
+						c.sendMessage(english	? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "+newVersion
+								+" is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
+												: "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "+newVersion
+														+" est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
+								.queue();
+					}
+		
+					updatePlayingStatus();
+				}
+
+			});
+			
 		} catch (Exception ex) {
 			Bukkit.getLogger()
 					.log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:", "Une erreur est survenue avec Discord:"),
