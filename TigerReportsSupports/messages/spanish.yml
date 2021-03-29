@@ -4,6 +4,7 @@
   Invalid-command: "_User_: Comando invalido. Los comandos disponibles son: `/tigerreports <reload / stop>`."
   No-permission: "_User_: No tienes permiso para usar este comando."
   Alert:
+    Message: "@here Nuevo reporte:"
     Title: "Reporte #_Id_"
     Status: "Estado"
     Server: "Servidor"
