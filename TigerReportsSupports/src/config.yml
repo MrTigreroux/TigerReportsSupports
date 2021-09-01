@@ -16,3 +16,5 @@ Config:
     # Display the server in alerts / Afficher le serveur dans les alertes
     PlayingStatus: "Minecraft server"
     # Set the played game message (the activity "Playing at ...") on Discord / Définit le jeu actuellement joué (l'activité "Joue à ...") sur Discord
+    NotifyOnlyLocalReports: no
+    # Notify with the Discord bot only the reports that are sent from the Spigot server where this TigerReportsSupports plugin is installed. Enabling this setting allows to install TigerReportsSupports plugin on all your Spigot servers, which is not necessary if you use BungeeCord but removes the necessity to have at least 1 connected player to receive BungeeCord notifications and therefore new reports / Informer, avec le bot Discord, uniquement des signalements envoyés depuis le serveur Spigot où ce plugin TigerReportsSupports est installé. En activant ce paramètre, le plugin TigerReportsSupports peut être installé sur tous les serveurs Spigot, ce qui n'est pas nécessaire si vous utilisez BungeeCord mais cela retire la nécessité d'avoir au moins 1 joueur connecté pour recevoir les notifications BungeeCord et donc les nouveaux signalements

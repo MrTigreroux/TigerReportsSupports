@@ -15,14 +15,16 @@ public class DiscordListener implements EventListener {
 
 	@Override
 	public void onEvent(GenericEvent event) {
-		if(event instanceof MessageReceivedEvent) {
+		if (event instanceof MessageReceivedEvent) {
 			MessageReceivedEvent e = (MessageReceivedEvent) event;
-			if(e.getChannelType().equals(ChannelType.TEXT)) {
+			if (e.getChannelType().equals(ChannelType.TEXT)) {
 				User u = e.getAuthor();
-				if(!u.isBot()) {
+				if (!u.isBot()) {
 					String message = e.getMessage().getContentRaw().toLowerCase();
-					if(message.startsWith("/tigerreports "))
-						TigerReportsSupports.getInstance().getDiscordBot().onCommand(e.getTextChannel(), message.substring(14), u);
+					if (message.startsWith("/tigerreports "))
+						TigerReportsSupports.getInstance()
+						        .getDiscordBot()
+						        .onCommand(e.getTextChannel(), message.substring(14), u);
 				}
 			}
 		}

@@ -12,10 +12,10 @@ public enum Status {
 	IN_PROGRESS(Color.ORANGE, "https://i.imgur.com/jbAWsGs.png"),
 	IMPORTANT(Color.RED, "https://i.imgur.com/5CWSg2M.png"),
 	DONE(Color.CYAN, "https://i.imgur.com/RnVauMT.png");
-	
+
 	private Color color;
 	private String icon;
-	
+
 	Status(Color color, String icon) {
 		this.color = color;
 		this.icon = icon;
@@ -24,9 +24,9 @@ public enum Status {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public String getIcon() {
 		return icon;
 	}
-	
+
 }

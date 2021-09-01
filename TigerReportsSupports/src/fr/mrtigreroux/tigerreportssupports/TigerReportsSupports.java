@@ -21,23 +21,23 @@ import fr.mrtigreroux.tigerreportssupports.managers.WebManager;
 public class TigerReportsSupports extends JavaPlugin {
 
 	private static TigerReportsSupports instance;
-	
+
 	private WebManager webManager;
 	private DiscordBot discordBot = null;
-	
+
 	public TigerReportsSupports() {}
-	
+
 	public static void load() {
-		for(ConfigFile configFiles : ConfigFile.values())
+		for (ConfigFile configFiles : ConfigFile.values())
 			configFiles.load();
 	}
-	
+
 	@Override
 	public void onEnable() {
 		instance = this;
-		
+
 		PluginManager pm = Bukkit.getPluginManager();
-		if(!pm.isPluginEnabled("TigerReports")) {
+		if (!pm.isPluginEnabled("TigerReports")) {
 			Logger logger = Bukkit.getLogger();
 			logger.severe(MessageUtils.LINE);
 			logger.severe("[TigerReportsSupports] The plugin TigerReports must be installed.");
@@ -47,15 +47,16 @@ public class TigerReportsSupports extends JavaPlugin {
 			pm.disablePlugin(this);
 			return;
 		}
-		
+
 		load();
-		pm.registerEvents(new ReportListener(), this);
-		
+		pm.registerEvents(new ReportListener(this), this);
+
 		PluginDescriptionFile desc = getDescription();
-		if(!desc.getName().equals("TigerReportsSupports") || desc.getAuthors().size() != 1 || !desc.getAuthors().contains("MrTigreroux")) {
+		if (!desc.getName().equals("TigerReportsSupports") || desc.getAuthors().size() != 1
+		        || !desc.getAuthors().contains("MrTigreroux")) {
 			Logger logger = Bukkit.getLogger();
 			logger.severe(MessageUtils.LINE);
-			if(ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
+			if (ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
 				logger.severe("[TigerReportsSupports] The file plugin.yml has been edited");
 				logger.severe("without authorization.");
 			} else {
@@ -66,35 +67,35 @@ public class TigerReportsSupports extends JavaPlugin {
 			Bukkit.shutdown();
 			return;
 		}
-		
+
 		webManager = new WebManager(this);
-		
-		if(ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
+
+		if (ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
 			discordBot = new DiscordBot();
 			discordBot.connect();
 		}
 	}
-	
+
 	@Override
 	public void onDisable() {
-		if(discordBot != null)
+		if (discordBot != null)
 			discordBot.disconnect();
 	}
-	
+
 	public static TigerReportsSupports getInstance() {
 		return instance;
 	}
-	
+
 	public WebManager getWebManager() {
 		return webManager;
 	}
-	
+
 	public DiscordBot getDiscordBot() {
 		return discordBot;
 	}
-	
+
 	public void removeDiscordBot() {
 		discordBot = null;
 	}
-	
+
 }
