@@ -7,7 +7,9 @@ import fr.mrtigreroux.tigerreports.TigerReports;
 import fr.mrtigreroux.tigerreports.events.NewReportEvent;
 import fr.mrtigreroux.tigerreports.events.ProcessReportEvent;
 import fr.mrtigreroux.tigerreports.events.ReportStatusChangeEvent;
+import fr.mrtigreroux.tigerreports.objects.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
+import fr.mrtigreroux.tigerreports.utils.MessageUtils;
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
 import fr.mrtigreroux.tigerreportssupports.bots.Status;
@@ -36,20 +38,26 @@ public class ReportListener implements Listener {
 	@EventHandler
 	public void onProcessReport(ProcessReportEvent e) {
 		DiscordBot discordBot = trs.getDiscordBot();
-		if (discordBot != null)
-			discordBot.notifyProcessReport(e.getReport(), e.getStaff());
+		Report r = e.getReport();
+		if (discordBot != null && notify(r))
+			discordBot.notifyProcessReport(r, e.getStaff());
 	}
 
 	@EventHandler
 	public void onReportStatusChange(ReportStatusChangeEvent e) {
 		DiscordBot discordBot = trs.getDiscordBot();
-		if (discordBot != null)
-			discordBot.updateReportStatus(e.getReport(), Status.valueOf(e.getStatus().toUpperCase()));
+		Report r = e.getReport();
+		if (discordBot != null & notify(r))
+			discordBot.updateReportStatus(r, Status.valueOf(e.getStatus().toUpperCase()));
 	}
 
 	private boolean notify(String reportServerName) {
 		return !ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.NotifyOnlyLocalReports")
 		        || TigerReports.getInstance().getBungeeManager().getServerName().equals(reportServerName);
+	}
+
+	private boolean notify(Report r) {
+		return notify(MessageUtils.getServer(r.getOldLocation("reporter")));
 	}
 
 }
