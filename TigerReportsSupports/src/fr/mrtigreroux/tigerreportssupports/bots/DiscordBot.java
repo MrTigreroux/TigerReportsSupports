@@ -172,7 +172,19 @@ public class DiscordBot {
 
 		EmbedBuilder alert = new EmbedBuilder();
 		alert.setColor(Status.WAITING.getColor());
-		alert.setThumbnail("https://i.imgur.com/3NDcs3t.png");
+
+		String reporterName = r.getPlayerName("Reporter", false, false);
+		String reportedName = r.getPlayerName("Reported", false, false);
+
+		String defaultThumbnail = "https://i.imgur.com/3NDcs3t.png";
+		String thumbnail = ConfigFile.CONFIG.get().getString("Config.Discord.Thumbnail", defaultThumbnail);
+
+		if (!defaultThumbnail.equals(thumbnail)) {
+			alert.setFooter("TigerReportsSupports Discord bot", defaultThumbnail);
+			thumbnail = thumbnail.replace("_Reporter_", reporterName).replace("_Reported_", reportedName);
+		}
+
+		alert.setThumbnail(thumbnail);
 
 		FileConfiguration messages = ConfigFile.MESSAGES.get();
 		String path = "DiscordMessages.Alert.";
@@ -184,8 +196,8 @@ public class DiscordBot {
 		if (serverInfo)
 			alert.addField(messages.getString(path + "Server"), MessageUtils.getServerName(server), true);
 		alert.addField(messages.getString(path + "Date"), r.getDate(), serverInfo);
-		alert.addField(messages.getString(path + "Reporter"), r.getPlayerName("Reporter", false, false), false);
-		alert.addField(messages.getString(path + "Reported"), r.getPlayerName("Reported", false, false), true);
+		alert.addField(messages.getString(path + "Reporter"), reporterName, false);
+		alert.addField(messages.getString(path + "Reported"), reportedName, true);
 		alert.addField(messages.getString(path + "Reason"), r.getReason(false), false);
 
 		String message = messages.getString(path + "Message");
