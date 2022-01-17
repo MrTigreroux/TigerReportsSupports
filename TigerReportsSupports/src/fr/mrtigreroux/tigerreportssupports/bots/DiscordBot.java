@@ -248,8 +248,13 @@ public class DiscordBot {
 					EmbedBuilder updatedAlert = new EmbedBuilder(alert);
 					updatedAlert.setColor(status.getColor());
 					List<Field> fields = updatedAlert.getFields();
+
+					String statusField = r.getStatusWithDetails()
+					        .replace(ConfigUtils.getLineBreakSymbol(), " | ")
+					        .replaceAll("§.", "");
+
 					fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"),
-					        r.getStatus().getWord(r.getProcessor()).replaceAll("§.", ""), false));
+					        statusField, false));
 					updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
 					msg.editMessage(updatedAlert.build()).queue();
 					break;
