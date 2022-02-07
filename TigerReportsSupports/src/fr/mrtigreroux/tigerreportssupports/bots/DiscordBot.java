@@ -32,6 +32,8 @@ import fr.mrtigreroux.tigerreportssupports.listeners.DiscordListener;
 
 public class DiscordBot {
 
+	private static final String DEFAULT_THUMBNAIL = "https://i.imgur.com/3NDcs3t.png";
+
 	private JDA bot;
 	private TextChannel c;
 
@@ -43,36 +45,51 @@ public class DiscordBot {
 			logger.setLevel(ch.qos.logback.classic.Level.WARN);
 		} catch (Exception ignored) {}
 
+		String token = ConfigFile.CONFIG.get().getString("Config.Discord.Token");
+		if (token == null || token.isEmpty()) {
+			Bukkit.getLogger()
+			        .severe(ConfigUtils.getInfoMessage("The Discord Bot token is not configured.",
+			                "Le token du bot Discord n'est pas configuré"));
+			return;
+		}
+
 		try {
-			bot = JDABuilder.createDefault(ConfigFile.CONFIG.get().getString("Config.Discord.Token"))
-			        .addEventListeners(new DiscordListener())
-			        .build();
+			bot = JDABuilder.createDefault(token).addEventListeners(new DiscordListener()).build();
 			Bukkit.getScheduler().runTaskAsynchronously(TigerReportsSupports.getInstance(), new Runnable() {
 
 				@Override
 				public void run() {
 					try {
 						bot.awaitReady();
+
+						Bukkit.getScheduler().runTask(TigerReportsSupports.getInstance(), new Runnable() {
+
+							@Override
+							public void run() {
+								updateChannel();
+								String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
+								if (newVersion != null) {
+									boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
+									c.sendMessage(english
+									        ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "
+									                + newVersion
+									                + " is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
+									        : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "
+									                + newVersion
+									                + " est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
+									        .queue();
+								}
+
+								updatePlayingStatus();
+							}
+
+						});
 					} catch (InterruptedException ex) {
 						Bukkit.getLogger()
 						        .log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:",
 						                "Une erreur est survenue avec Discord:"), ex);
+						return;
 					}
-					updateChannel();
-					String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
-					if (newVersion != null) {
-						boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
-						c.sendMessage(english
-						        ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "
-						                + newVersion
-						                + " is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
-						        : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "
-						                + newVersion
-						                + " est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
-						        .queue();
-					}
-
-					updatePlayingStatus();
 				}
 
 			});
@@ -176,11 +193,13 @@ public class DiscordBot {
 		String reporterName = r.getPlayerName("Reporter", false, false);
 		String reportedName = r.getPlayerName("Reported", false, false);
 
-		String defaultThumbnail = "https://i.imgur.com/3NDcs3t.png";
-		String thumbnail = ConfigFile.CONFIG.get().getString("Config.Discord.Thumbnail", defaultThumbnail);
+		String thumbnail = ConfigFile.CONFIG.get().getString("Config.Discord.Thumbnail", DEFAULT_THUMBNAIL);
+		if (thumbnail == null || thumbnail.isEmpty()) {
+			thumbnail = DEFAULT_THUMBNAIL;
+		}
 
-		if (!defaultThumbnail.equals(thumbnail)) {
-			alert.setFooter("TigerReportsSupports Discord bot", defaultThumbnail);
+		if (!DEFAULT_THUMBNAIL.equals(thumbnail)) {
+			alert.setFooter("TigerReportsSupports Discord bot", DEFAULT_THUMBNAIL);
 			thumbnail = thumbnail.replace("_Reporter_", reporterName).replace("_Reported_", reportedName);
 		}
 

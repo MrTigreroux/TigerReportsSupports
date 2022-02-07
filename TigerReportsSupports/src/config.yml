@@ -6,7 +6,7 @@ Config:
   Discord:
     Enabled: false
     
-    Token: <token>
+    Token: "<token>"
     # Discord bot token / Token du bot Discord
     
     Channel: 0
@@ -21,7 +21,9 @@ Config:
     
     Thumbnail: ""
     # Web link of the image displayed at the top right corner of the bot alerts / Lien internet de l'image affichée dans le coin supérieur droit des alertes du bot
+    # If no valid image URL is provided, then the plugin logo is displayed. Else, the plugin logo is displayed at the bottom of alerts / Si aucun lien internet d'image valide n'est configuré, le logo du plugin est affiché. Sinon, le logo du plugin est affiché en bas des alertes
     # Usable placeholders:    _Reporter_ and _Reported_
+    # Example: "https://cravatar.eu/avatar/_Reported_/64.png"
     
     PlayingStatus: "Minecraft server"
     # Set the played game message (the activity "Playing at ...") on Discord / Définit le jeu actuellement joué (l'activité "Joue à ...") sur Discord
