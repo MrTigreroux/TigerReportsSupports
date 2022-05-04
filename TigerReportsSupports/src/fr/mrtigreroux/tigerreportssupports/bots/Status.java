@@ -28,5 +28,9 @@ public enum Status {
 	public String getIcon() {
 		return icon;
 	}
+	
+	public static Status fromRawName(String rawName) {
+		return Status.valueOf(rawName.toUpperCase());
+	}
 
 }

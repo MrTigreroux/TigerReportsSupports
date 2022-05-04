@@ -1,5 +1,6 @@
 name: TigerReportsSupports
-version: 1.6.4
+version: 1.6.5
+api-version: 1.13
 description: Adds supports to TigerReports plugin / Ajoute des supports au plugin TigerReports.
 author: MrTigreroux
 main: fr.mrtigreroux.tigerreportssupports.TigerReportsSupports

@@ -1,18 +1,18 @@
 package fr.mrtigreroux.tigerreportssupports.listeners;
 
+import java.util.Objects;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import fr.mrtigreroux.tigerreports.TigerReports;
 import fr.mrtigreroux.tigerreports.events.NewReportEvent;
 import fr.mrtigreroux.tigerreports.events.ProcessReportEvent;
 import fr.mrtigreroux.tigerreports.events.ReportStatusChangeEvent;
-import fr.mrtigreroux.tigerreports.objects.Report;
+import fr.mrtigreroux.tigerreports.managers.BungeeManager;
+import fr.mrtigreroux.tigerreports.objects.reports.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreports.utils.MessageUtils;
-import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
-import fr.mrtigreroux.tigerreportssupports.bots.Status;
 import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 
 /**
@@ -21,23 +21,24 @@ import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 
 public class ReportListener implements Listener {
 
-	private TigerReportsSupports trs;
+	private final DiscordBot discordBot;
+	private final BungeeManager bm;
 
-	public ReportListener(TigerReportsSupports trs) {
-		this.trs = trs;
+	public ReportListener(DiscordBot bot, BungeeManager bm) {
+		this.discordBot = Objects.requireNonNull(bot);
+		this.bm = bm;
 	}
 
 	@EventHandler
 	public void onNewReport(NewReportEvent e) {
-		DiscordBot discordBot = trs.getDiscordBot();
 		String reportServerName = e.getServer();
-		if (discordBot != null && notify(reportServerName))
+		if (notify(reportServerName)) {
 			discordBot.notifyReport(reportServerName, e.getReport());
+		}
 	}
 
 	@EventHandler
 	public void onProcessReport(ProcessReportEvent e) {
-		DiscordBot discordBot = trs.getDiscordBot();
 		Report r = e.getReport();
 		if (discordBot != null && notify(r))
 			discordBot.notifyProcessReport(r, e.getStaff());
@@ -45,19 +46,19 @@ public class ReportListener implements Listener {
 
 	@EventHandler
 	public void onReportStatusChange(ReportStatusChangeEvent e) {
-		DiscordBot discordBot = trs.getDiscordBot();
 		Report r = e.getReport();
-		if (discordBot != null & notify(r))
-			discordBot.updateReportStatus(r, Status.valueOf(e.getStatus().toUpperCase()));
+		if (discordBot != null & notify(r)) {
+			discordBot.updateReportStatus(r);
+		}
+	}
+
+	private boolean notify(Report r) {
+		return notify(MessageUtils.getServer(r.getOldLocation(Report.ParticipantType.REPORTER)));
 	}
 
 	private boolean notify(String reportServerName) {
 		return !ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.NotifyOnlyLocalReports")
-		        || TigerReports.getInstance().getBungeeManager().getServerName().equals(reportServerName);
-	}
-
-	private boolean notify(Report r) {
-		return notify(MessageUtils.getServer(r.getOldLocation("reporter")));
+		        || bm.getServerName().equals(reportServerName);
 	}
 
 }

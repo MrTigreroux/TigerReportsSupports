@@ -1,13 +1,19 @@
 package fr.mrtigreroux.tigerreportssupports.bots;
 
 import java.util.List;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Logger;
+import fr.mrtigreroux.tigerreports.logs.Logger;
+import fr.mrtigreroux.tigerreports.managers.VaultManager;
+import fr.mrtigreroux.tigerreports.objects.reports.Report;
+import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
+import fr.mrtigreroux.tigerreports.utils.MessageUtils;
+import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
+import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
+import fr.mrtigreroux.tigerreportssupports.listeners.DiscordListener;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -19,12 +25,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed.AuthorInfo;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import fr.mrtigreroux.tigerreports.objects.Report;
-import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
-import fr.mrtigreroux.tigerreports.utils.MessageUtils;
-import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
-import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
-import fr.mrtigreroux.tigerreportssupports.listeners.DiscordListener;
 
 /**
  * @author MrTigreroux
@@ -32,42 +32,49 @@ import fr.mrtigreroux.tigerreportssupports.listeners.DiscordListener;
 
 public class DiscordBot {
 
+	private static final Logger LOGGER = Logger.fromClass(DiscordBot.class,
+	        TigerReportsSupports.getInstance().getName());
+
 	private static final String DEFAULT_THUMBNAIL = "https://i.imgur.com/3NDcs3t.png";
 
 	private JDA bot;
 	private TextChannel c;
+	private final TigerReportsSupports trs;
+	private final VaultManager vm;
 
-	public DiscordBot() {}
+	public DiscordBot(TigerReportsSupports trs, VaultManager vm) {
+		this.trs = trs;
+		this.vm = vm;
+	}
 
-	public void connect() {
+	public void connect(String newVersion) {
 		try {
-			Logger logger = (Logger) LoggerFactory.getLogger("net.dv8tion.jda");
+			ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory
+			        .getLogger("net.dv8tion.jda");
 			logger.setLevel(ch.qos.logback.classic.Level.WARN);
 		} catch (Exception ignored) {}
 
 		String token = ConfigFile.CONFIG.get().getString("Config.Discord.Token");
 		if (token == null || token.isEmpty()) {
-			Bukkit.getLogger()
-			        .severe(ConfigUtils.getInfoMessage("The Discord Bot token is not configured.",
-			                "Le token du bot Discord n'est pas configuré"));
+			Logger.CONFIG.error(ConfigUtils.getInfoMessage("The Discord Bot token is not configured.",
+			        "Le token du bot Discord n'est pas configuré"));
 			return;
 		}
 
 		try {
-			bot = JDABuilder.createDefault(token).addEventListeners(new DiscordListener()).build();
-			Bukkit.getScheduler().runTaskAsynchronously(TigerReportsSupports.getInstance(), new Runnable() {
+			bot = JDABuilder.createDefault(token).addEventListeners(new DiscordListener(this)).build();
+			Bukkit.getScheduler().runTaskAsynchronously(trs, new Runnable() {
 
 				@Override
 				public void run() {
 					try {
 						bot.awaitReady();
 
-						Bukkit.getScheduler().runTask(TigerReportsSupports.getInstance(), new Runnable() {
+						Bukkit.getScheduler().runTask(trs, new Runnable() {
 
 							@Override
 							public void run() {
 								updateChannel();
-								String newVersion = TigerReportsSupports.getInstance().getWebManager().getNewVersion();
 								if (newVersion != null) {
 									boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
 									c.sendMessage(english
@@ -85,9 +92,8 @@ public class DiscordBot {
 
 						});
 					} catch (InterruptedException ex) {
-						Bukkit.getLogger()
-						        .log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:",
-						                "Une erreur est survenue avec Discord:"), ex);
+						LOGGER.error(ConfigUtils.getInfoMessage("An error has occurred with Discord:",
+						        "Une erreur est survenue avec Discord:"), ex);
 						return;
 					}
 				}
@@ -95,9 +101,8 @@ public class DiscordBot {
 			});
 
 		} catch (Exception ex) {
-			Bukkit.getLogger()
-			        .log(Level.SEVERE, ConfigUtils.getInfoMessage("An error has occurred with Discord:",
-			                "Une erreur est survenue avec Discord:"), ex);
+			LOGGER.error(ConfigUtils.getInfoMessage("An error has occurred with Discord:",
+			        "Une erreur est survenue avec Discord:"), ex);
 		}
 	}
 
@@ -110,10 +115,9 @@ public class DiscordBot {
 			if (!channels.isEmpty()) {
 				c = channels.get(0);
 			} else {
-				Bukkit.getLogger()
-				        .severe(ConfigUtils.getInfoMessage(
-				                "The Discord bot could not find any text channel on the Discord server.",
-				                "Le bot Discord n'a pas pu trouver un seul canal de texte sur le serveur Discord."));
+				Logger.CONFIG.error(ConfigUtils.getInfoMessage(
+				        "The Discord bot could not find any text channel on the Discord server.",
+				        "Le bot Discord n'a pas pu trouver un seul canal de texte sur le serveur Discord."));
 				return;
 			}
 		}
@@ -130,11 +134,9 @@ public class DiscordBot {
 
 	private boolean canSendMessage() {
 		if (!c.getGuild().getSelfMember().hasPermission(c, Permission.MESSAGE_WRITE)) {
-			Bukkit.getLogger()
-			        .warning(ConfigUtils.getInfoMessage(
-			                "The Discord bot doesn't have the permission to send messages in channel #",
-			                "Le bot Discord n'a pas la permission d'envoyer des messages dans le canal #")
-			                + c.getName());
+			Logger.CONFIG.error(ConfigUtils.getInfoMessage(
+			        "The Discord bot doesn't have the permission to send messages in channel #",
+			        "Le bot Discord n'a pas la permission d'envoyer des messages dans le canal #") + c.getName());
 			return false;
 		}
 		return true;
@@ -157,13 +159,15 @@ public class DiscordBot {
 		}
 		switch (command) {
 		case "reload":
-			TigerReportsSupports.load();
-			if (!ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
-				disconnect();
-				return;
-			}
-			updateChannel();
-			updatePlayingStatus();
+			trs.unload();
+			Bukkit.getScheduler().runTaskLater(trs, new Runnable() {
+
+				@Override
+				public void run() {
+					trs.load();
+				}
+
+			}, 20);
 			break;
 		case "stop":
 			disconnect();
@@ -190,8 +194,8 @@ public class DiscordBot {
 		EmbedBuilder alert = new EmbedBuilder();
 		alert.setColor(Status.WAITING.getColor());
 
-		String reporterName = r.getPlayerName("Reporter", false, false);
-		String reportedName = r.getPlayerName("Reported", false, false);
+		String reporterName = r.getPlayerName(Report.ParticipantType.REPORTER, false, false, vm, null);
+		String reportedName = r.getPlayerName(Report.ParticipantType.REPORTED, false, false, vm, null);
 
 		String thumbnail = ConfigFile.CONFIG.get().getString("Config.Discord.Thumbnail", DEFAULT_THUMBNAIL);
 		if (thumbnail == null || thumbnail.isEmpty()) {
@@ -221,22 +225,29 @@ public class DiscordBot {
 
 		String message = messages.getString(path + "Message");
 		if (message != null && !message.isEmpty()) {
-			c.sendMessage(message).embed(alert.build()).queue();
+			c.sendMessage(message).setEmbeds(alert.build()).queue();
 		} else {
-			c.sendMessage(alert.build()).queue();
+			c.sendMessageEmbeds(alert.build()).queue();
 		}
 	}
 
 	public void notifyProcessReport(Report r, String staff) {
+		if (staff == null) {
+			fr.mrtigreroux.tigerreports.objects.users.User processorStaff = r.getProcessorStaff();
+			if (processorStaff != null) {
+				staff = processorStaff.getName();
+			}
+		}
 		sendMessage(ConfigFile.MESSAGES.get()
 		        .getString("DiscordMessages.Report-processed")
 		        .replace("_Id_", Integer.toString(r.getId()))
-		        .replace("_Staff_", staff != null ? staff : r.getProcessor()));
-		updateReportStatus(r, Status.DONE);
+		        .replace("_Staff_", staff));
+		updateReportStatus(r);
 	}
 
-	public void updateReportStatus(Report r, Status status) {
+	public void updateReportStatus(Report r) {
 		try {
+			Status status = Status.fromRawName(r.getStatus().getRawName());
 			String reportId = Integer.toString(r.getId());
 			String configTitle = ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Title");
 			int idIndex = configTitle.indexOf("_Id_");
@@ -268,14 +279,14 @@ public class DiscordBot {
 					updatedAlert.setColor(status.getColor());
 					List<Field> fields = updatedAlert.getFields();
 
-					String statusField = r.getStatusWithDetails()
+					String statusField = r.getStatusWithDetails(vm)
 					        .replace(ConfigUtils.getLineBreakSymbol(), " | ")
 					        .replaceAll("§.", "");
 
 					fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"),
 					        statusField, false));
 					updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
-					msg.editMessage(updatedAlert.build()).queue();
+					msg.editMessageEmbeds(updatedAlert.build()).queue();
 					break;
 				}
 			}
@@ -283,7 +294,7 @@ public class DiscordBot {
 	}
 
 	public void disconnect() {
-		TigerReportsSupports.getInstance().removeDiscordBot();
+		trs.removeDiscordBot();
 		sendMessage(ConfigFile.MESSAGES.get().getString("DiscordMessages.Disconnected"));
 		try {
 			bot.shutdown();

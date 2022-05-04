@@ -1,6 +1,8 @@
 package fr.mrtigreroux.tigerreportssupports.listeners;
 
-import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
+import java.util.Objects;
+
+import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -13,6 +15,13 @@ import net.dv8tion.jda.api.hooks.EventListener;
 
 public class DiscordListener implements EventListener {
 
+	private final DiscordBot bot;
+
+	public DiscordListener(DiscordBot bot) {
+		super();
+		this.bot = Objects.requireNonNull(bot);
+	}
+
 	@Override
 	public void onEvent(GenericEvent event) {
 		if (event instanceof MessageReceivedEvent) {
@@ -21,10 +30,9 @@ public class DiscordListener implements EventListener {
 				User u = e.getAuthor();
 				if (!u.isBot()) {
 					String message = e.getMessage().getContentRaw().toLowerCase();
-					if (message.startsWith("/tigerreports "))
-						TigerReportsSupports.getInstance()
-						        .getDiscordBot()
-						        .onCommand(e.getTextChannel(), message.substring(14), u);
+					if (message.startsWith("/tigerreports ")) {
+						bot.onCommand(e.getTextChannel(), message.substring(14), u);
+					}
 				}
 			}
 		}

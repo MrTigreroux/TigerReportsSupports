@@ -1,18 +1,20 @@
 package fr.mrtigreroux.tigerreportssupports;
 
-import java.util.logging.Logger;
-
 import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import fr.mrtigreroux.tigerreports.TigerReports;
+import fr.mrtigreroux.tigerreports.logs.Logger;
+import fr.mrtigreroux.tigerreports.tasks.ResultCallback;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreports.utils.MessageUtils;
+import fr.mrtigreroux.tigerreports.utils.WebUtils;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
 import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 import fr.mrtigreroux.tigerreportssupports.listeners.ReportListener;
-import fr.mrtigreroux.tigerreportssupports.managers.WebManager;
 
 /**
  * @author MrTigreroux
@@ -20,25 +22,34 @@ import fr.mrtigreroux.tigerreportssupports.managers.WebManager;
 
 public class TigerReportsSupports extends JavaPlugin {
 
+	private static final String SPIGOTMC_RESOURCE_ID = "54612";
+
 	private static TigerReportsSupports instance;
 
-	private WebManager webManager;
 	private DiscordBot discordBot = null;
 
 	public TigerReportsSupports() {}
-
-	public static void load() {
-		for (ConfigFile configFiles : ConfigFile.values())
-			configFiles.load();
-	}
 
 	@Override
 	public void onEnable() {
 		instance = this;
 
+		load();
+
+		PluginDescriptionFile desc = getDescription();
+		if (!desc.getName().equals("TigerReportsSupports") || desc.getAuthors().size() != 1
+		        || !desc.getAuthors().contains("MrTigreroux")) {
+			Logger.CONFIG.error(ConfigUtils.getInfoMessage("The file plugin.yml has been edited without authorization.",
+			        "Le fichier plugin.yml a ete modifie sans autorisation."));
+			Bukkit.shutdown();
+			return;
+		}
+	}
+
+	public void load() {
 		PluginManager pm = Bukkit.getPluginManager();
 		if (!pm.isPluginEnabled("TigerReports")) {
-			Logger logger = Bukkit.getLogger();
+			java.util.logging.Logger logger = Bukkit.getLogger();
 			logger.severe(MessageUtils.LINE);
 			logger.severe("[TigerReportsSupports] The plugin TigerReports must be installed.");
 			logger.severe("You can download it here:");
@@ -48,46 +59,28 @@ public class TigerReportsSupports extends JavaPlugin {
 			return;
 		}
 
-		load();
-		pm.registerEvents(new ReportListener(this), this);
+		for (ConfigFile configFiles : ConfigFile.values()) {
+			configFiles.load(this);
+		}
 
-		PluginDescriptionFile desc = getDescription();
-		if (!desc.getName().equals("TigerReportsSupports") || desc.getAuthors().size() != 1
-		        || !desc.getAuthors().contains("MrTigreroux")) {
-			Logger logger = Bukkit.getLogger();
-			logger.severe(MessageUtils.LINE);
-			if (ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")) {
-				logger.severe("[TigerReportsSupports] The file plugin.yml has been edited");
-				logger.severe("without authorization.");
-			} else {
-				logger.severe("[TigerReportsSupports] Le fichier plugin.yml a ete modifie");
-				logger.severe("sans autorisation.");
+		TigerReports tr = TigerReports.getInstance();
+		WebUtils.checkNewVersion(this, tr, SPIGOTMC_RESOURCE_ID, new ResultCallback<String>() {
+
+			@Override
+			public void onResultReceived(String newVersion) {
+				if (ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
+					discordBot = new DiscordBot(TigerReportsSupports.this, tr.getVaultManager());
+					discordBot.connect(newVersion);
+					pm.registerEvents(new ReportListener(discordBot, tr.getBungeeManager()), TigerReportsSupports.this);
+				}
 			}
-			logger.severe(MessageUtils.LINE);
-			Bukkit.shutdown();
-			return;
-		}
 
-		webManager = new WebManager(this);
+		});
 
-		if (ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
-			discordBot = new DiscordBot();
-			discordBot.connect();
-		}
-	}
-
-	@Override
-	public void onDisable() {
-		if (discordBot != null)
-			discordBot.disconnect();
 	}
 
 	public static TigerReportsSupports getInstance() {
 		return instance;
-	}
-
-	public WebManager getWebManager() {
-		return webManager;
 	}
 
 	public DiscordBot getDiscordBot() {
@@ -96,6 +89,20 @@ public class TigerReportsSupports extends JavaPlugin {
 
 	public void removeDiscordBot() {
 		discordBot = null;
+	}
+
+	@Override
+	public void onDisable() {
+		unload();
+	}
+
+	public void unload() {
+		HandlerList.unregisterAll(this); // Unregister all event listeners.
+
+		if (discordBot != null) {
+			discordBot.disconnect();
+			discordBot = null;
+		}
 	}
 
 }
