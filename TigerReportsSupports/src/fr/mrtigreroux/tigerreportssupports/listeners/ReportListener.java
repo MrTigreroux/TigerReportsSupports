@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import fr.mrtigreroux.tigerreports.events.NewReportEvent;
 import fr.mrtigreroux.tigerreports.events.ProcessReportEvent;
 import fr.mrtigreroux.tigerreports.events.ReportStatusChangeEvent;
+import fr.mrtigreroux.tigerreports.logs.Logger;
 import fr.mrtigreroux.tigerreports.managers.BungeeManager;
 import fr.mrtigreroux.tigerreports.objects.reports.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
@@ -32,6 +33,7 @@ public class ReportListener implements Listener {
 	@EventHandler
 	public void onNewReport(NewReportEvent e) {
 		String reportServerName = e.getServer();
+		Logger.EVENTS.info(() -> "onNewReport(): id = " + e.getReport().getId() + ", server = " + e.getServer());
 		if (notify(reportServerName)) {
 			discordBot.notifyReport(reportServerName, e.getReport());
 		}
@@ -39,6 +41,7 @@ public class ReportListener implements Listener {
 
 	@EventHandler
 	public void onProcessReport(ProcessReportEvent e) {
+		Logger.EVENTS.info(() -> "onProcessReport(): id = " + e.getReport().getId() + ", staff = " + e.getStaff());
 		Report r = e.getReport();
 		if (discordBot != null && notify(r))
 			discordBot.notifyProcessReport(r, e.getStaff());
@@ -46,8 +49,9 @@ public class ReportListener implements Listener {
 
 	@EventHandler
 	public void onReportStatusChange(ReportStatusChangeEvent e) {
+		Logger.EVENTS.info(() -> "onReportStatusChange(): id = " + e.getReport().getId());
 		Report r = e.getReport();
-		if (discordBot != null & notify(r)) {
+		if (discordBot != null && notify(r)) {
 			discordBot.updateReportStatus(r);
 		}
 	}
