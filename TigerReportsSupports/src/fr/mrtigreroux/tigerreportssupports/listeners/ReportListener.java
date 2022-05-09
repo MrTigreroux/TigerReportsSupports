@@ -12,7 +12,7 @@ import fr.mrtigreroux.tigerreports.logs.Logger;
 import fr.mrtigreroux.tigerreports.managers.BungeeManager;
 import fr.mrtigreroux.tigerreports.objects.reports.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
-import fr.mrtigreroux.tigerreports.utils.MessageUtils;
+import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
 import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 
@@ -22,7 +22,8 @@ import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 
 public class ReportListener implements Listener {
 
-	private static final Logger LOGGER = Logger.fromClass(ReportListener.class);
+	private static final Logger LOGGER = Logger.fromClass(ReportListener.class,
+	        TigerReportsSupports.getInstance().getName());
 
 	private final DiscordBot discordBot;
 	private final BungeeManager bm;
@@ -43,30 +44,32 @@ public class ReportListener implements Listener {
 
 	@EventHandler
 	public void onProcessReport(ProcessReportEvent e) {
-		Logger.EVENTS.info(() -> "onProcessReport(): id = " + e.getReport().getId() + ", staff = " + e.getStaff());
+		Logger.EVENTS.info(() -> "onProcessReport(): id = " + e.getReport().getId() + ", staff = " + e.getStaff()
+		        + ", bungee = " + e.isFromBungeeCord());
 		Report r = e.getReport();
-		if (discordBot != null && notify(r))
+		if (notify(!e.isFromBungeeCord()))
 			discordBot.notifyProcessReport(r, e.getStaff());
 	}
 
 	@EventHandler
 	public void onReportStatusChange(ReportStatusChangeEvent e) {
-		Logger.EVENTS.info(() -> "onReportStatusChange(): id = " + e.getReport().getId());
+		Logger.EVENTS.info(
+		        () -> "onReportStatusChange(): id = " + e.getReport().getId() + ", bungee = " + e.isFromBungeeCord());
 		Report r = e.getReport();
-		if (discordBot != null && notify(r)) {
+		if (notify(!e.isFromBungeeCord())) {
 			discordBot.updateReportStatus(r);
 		}
-	}
-
-	private boolean notify(Report r) {
-		return notify(MessageUtils.getServer(r.getOldLocation(Report.ParticipantType.REPORTER)));
 	}
 
 	private boolean notify(String reportServerName) {
 		LOGGER.info(() -> "notify(" + reportServerName + "): bm = " + bm + ", bm.getServerName() = "
 		        + (bm != null ? bm.getServerName() : null));
-		return !ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.NotifyOnlyLocalReports")
-		        || bm.getServerName().equals(reportServerName);
+		return notify(bm.getServerName().equals(reportServerName));
+	}
+
+	private boolean notify(boolean isLocalEvent) {
+		LOGGER.info(() -> "notify(" + isLocalEvent + ")");
+		return !ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.NotifyOnlyLocalReports") || isLocalEvent;
 	}
 
 }
