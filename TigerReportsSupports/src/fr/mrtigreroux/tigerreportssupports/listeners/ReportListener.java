@@ -22,6 +22,8 @@ import fr.mrtigreroux.tigerreportssupports.config.ConfigFile;
 
 public class ReportListener implements Listener {
 
+	private static final Logger LOGGER = Logger.fromClass(ReportListener.class);
+
 	private final DiscordBot discordBot;
 	private final BungeeManager bm;
 
@@ -61,6 +63,8 @@ public class ReportListener implements Listener {
 	}
 
 	private boolean notify(String reportServerName) {
+		LOGGER.info(() -> "notify(" + reportServerName + "): bm = " + bm + ", bm.getServerName() = "
+		        + (bm != null ? bm.getServerName() : null));
 		return !ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.NotifyOnlyLocalReports")
 		        || bm.getServerName().equals(reportServerName);
 	}

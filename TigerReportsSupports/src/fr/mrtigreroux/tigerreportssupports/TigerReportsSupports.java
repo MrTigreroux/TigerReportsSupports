@@ -1,5 +1,7 @@
 package fr.mrtigreroux.tigerreportssupports;
 
+import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -27,6 +29,14 @@ public class TigerReportsSupports extends JavaPlugin {
 	private static TigerReportsSupports instance;
 
 	private DiscordBot discordBot = null;
+	private Consumer<Boolean> trLoadUnloadListener = (loaded) -> {
+		Logger.MAIN.info(() -> "TigerReportsSupports: trLoadUnloadListener: loaded = " + loaded);
+		if (loaded) {
+			postLoad(TigerReports.getInstance());
+		} else {
+			unload();
+		}
+	};
 
 	public TigerReportsSupports() {}
 
@@ -62,8 +72,13 @@ public class TigerReportsSupports extends JavaPlugin {
 		for (ConfigFile configFiles : ConfigFile.values()) {
 			configFiles.load(this);
 		}
+		Logger.MAIN.info(() -> "TigerReportsSupports: load()");
 
-		TigerReports tr = TigerReports.getInstance();
+		TigerReports.getInstance().addAndNotifyLoadUnloadListener(trLoadUnloadListener);
+	}
+
+	private void postLoad(TigerReports tr) {
+		Logger.MAIN.info(() -> "TigerReportsSupports: postLoad()");
 		WebUtils.checkNewVersion(this, tr, SPIGOTMC_RESOURCE_ID, new ResultCallback<String>() {
 
 			@Override
@@ -71,12 +86,13 @@ public class TigerReportsSupports extends JavaPlugin {
 				if (ConfigFile.CONFIG.get().getBoolean("Config.Discord.Enabled")) {
 					discordBot = new DiscordBot(TigerReportsSupports.this, tr.getVaultManager());
 					discordBot.connect(newVersion);
-					pm.registerEvents(new ReportListener(discordBot, tr.getBungeeManager()), TigerReportsSupports.this);
+					Bukkit.getPluginManager()
+					        .registerEvents(new ReportListener(discordBot, tr.getBungeeManager()),
+					                TigerReportsSupports.this);
 				}
 			}
 
 		});
-
 	}
 
 	public static TigerReportsSupports getInstance() {
@@ -94,9 +110,11 @@ public class TigerReportsSupports extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		unload();
+		TigerReports.getInstance().removeLoadUnloadListener(trLoadUnloadListener);
 	}
 
 	public void unload() {
+		Logger.MAIN.info(() -> "TigerReportsSupports: unload()");
 		HandlerList.unregisterAll(this); // Unregister all event listeners.
 
 		if (discordBot != null) {
