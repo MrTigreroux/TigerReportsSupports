@@ -1,0 +1,15 @@
+DiscordMessages: # Если вы находитесь на версии Minecraft 1.8 или ниже, используйте кодировку ANSI, в противном случае используйте кодировку UTF-8
+  Connected: "Подключен к каналу _Channel_."
+  Disconnected: "Отключился."
+  Invalid-command: "_User_: Неизвестная команда. Доступные команды: `/tigerreports <reload / stop>`."
+  No-permission: "_User_: У Вас нет прав, чтобы использовать данную команду."
+  Alert:
+    Message: "@here Новое сообщение:"
+    Title: "Репорт #_Id_"
+    Status: "Статус"
+    Server: "Сервер"
+    Date: "Дата"
+    Reporter: "Заявитель"
+    Reported: "Нарушитель"
+    Reason: "Причина"
+  Report-processed: "Репорт #_Id_ был закрыт по причине _Staff_."
