@@ -57,59 +57,43 @@ public class DiscordBot {
 		String token = ConfigFile.CONFIG.get().getString("Config.Discord.Token");
 		if (token == null || token.isEmpty()) {
 			Logger.CONFIG.error(ConfigUtils.getInfoMessage("The Discord Bot token is not configured.",
-			        "Le token du bot Discord n'est pas configuré"));
+			        "Le token du bot Discord n'est pas configure"));
 			return;
 		}
+		Bukkit.getScheduler().runTaskAsynchronously(trs, () -> {
+			try {
+				bot = JDABuilder.createDefault(token).addEventListeners(new DiscordListener(DiscordBot.this)).build();
+				bot.awaitReady();
 
-		try {
-			bot = JDABuilder.createDefault(token).addEventListeners(new DiscordListener(this)).build();
-			Bukkit.getScheduler().runTaskAsynchronously(trs, new Runnable() {
-
-				@Override
-				public void run() {
-					try {
-						bot.awaitReady();
-
-						Bukkit.getScheduler().runTask(trs, new Runnable() {
-
-							@Override
-							public void run() {
-								updateChannel();
-								if (newVersion != null) {
-									boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
-									c.sendMessage(english
-									        ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "
-									                + newVersion
-									                + " is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
-									        : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "
-									                + newVersion
-									                + " est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
-									        .queue();
-								}
-
-								updatePlayingStatus();
-							}
-
-						});
-					} catch (InterruptedException ex) {
-						LOGGER.error(ConfigUtils.getInfoMessage("An error has occurred with Discord:",
-						        "Une erreur est survenue avec Discord:"), ex);
-						return;
+				Bukkit.getScheduler().runTask(trs, () -> {
+					updateChannel();
+					if (newVersion != null) {
+						boolean english = ConfigUtils.getInfoLanguage().equalsIgnoreCase("English");
+						c.sendMessage(english
+						        ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "
+						                + newVersion
+						                + " is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
+						        : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "
+						                + newVersion
+						                + " est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
+						        .queue();
 					}
-				}
 
-			});
-
-		} catch (Exception ex) {
-			LOGGER.error(ConfigUtils.getInfoMessage("An error has occurred with Discord:",
-			        "Une erreur est survenue avec Discord:"), ex);
-		}
+					updatePlayingStatus();
+				});
+			} catch (Exception ex) {
+				LOGGER.error(ConfigUtils.getInfoMessage("An error has occurred with Discord:",
+				        "Une erreur est survenue avec Discord:"), ex);
+				return;
+			}
+		});
 	}
 
 	private void updateChannel() {
 		String channel = ConfigFile.CONFIG.get().getString("Config.Discord.Channel", "");
-		if (!channel.isEmpty())
+		if (!channel.isEmpty()) {
 			c = bot.getTextChannelById(channel);
+		}
 		if (c == null) {
 			List<TextChannel> channels = bot.getTextChannels();
 			if (!channels.isEmpty()) {
@@ -128,8 +112,9 @@ public class DiscordBot {
 
 	private void updatePlayingStatus() {
 		String status = ConfigFile.CONFIG.get().getString("Config.Discord.PlayingStatus", "");
-		if (status != null && !status.isEmpty())
+		if (status != null && !status.isEmpty()) {
 			bot.getPresence().setActivity(Activity.playing(status));
+		}
 	}
 
 	private boolean canSendMessage() {
@@ -143,18 +128,20 @@ public class DiscordBot {
 	}
 
 	private void sendMessage(String message) {
-		if (message != null && !message.isEmpty() && canSendMessage())
+		if (message != null && !message.isEmpty() && canSendMessage()) {
 			c.sendMessage(message).queue();
+		}
 	}
 
 	public void onCommand(TextChannel channel, String command, User u) {
 		if (!ConfigFile.CONFIG.get()
 		        .getStringList("Config.Discord.Managers")
 		        .contains(u.getName() + "#" + u.getDiscriminator())) {
-			if (canSendMessage())
+			if (canSendMessage()) {
 				channel.sendMessage(ConfigFile.MESSAGES.get()
 				        .getString("DiscordMessages.No-permission")
 				        .replace("_User_", u.getAsMention())).queue();
+			}
 			return;
 		}
 		switch (command) {
@@ -173,17 +160,19 @@ public class DiscordBot {
 			disconnect();
 			break;
 		default:
-			if (canSendMessage())
+			if (canSendMessage()) {
 				channel.sendMessage(ConfigFile.MESSAGES.get()
 				        .getString("DiscordMessages.Invalid-command")
 				        .replace("_User_", u.getAsMention())).queue();
+			}
 			break;
 		}
 	}
 
 	public void notifyReport(String server, Report r) {
-		if (!canSendMessage())
+		if (!canSendMessage()) {
 			return;
+		}
 		if (!c.getGuild().getSelfMember().hasPermission(c, Permission.MESSAGE_EMBED_LINKS)) {
 			c.sendMessage((ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")
 			        ? "I can't send embeds in this channel. Please give me the permission."
@@ -214,10 +203,12 @@ public class DiscordBot {
 		alert.setAuthor(messages.getString(path + "Title").replace("_Id_", Integer.toString(r.getId())), null,
 		        Status.WAITING.getIcon());
 		alert.addField(messages.getString(path + "Status"),
-		        fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getWord(null).replaceAll("§.", ""), false);
+		        fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getDisplayName(null).replaceAll("§.", ""),
+		        false);
 		boolean serverInfo = ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
-		if (serverInfo)
+		if (serverInfo) {
 			alert.addField(messages.getString(path + "Server"), MessageUtils.getServerName(server), true);
+		}
 		alert.addField(messages.getString(path + "Date"), r.getDate(), serverInfo);
 		alert.addField(messages.getString(path + "Reporter"), reporterName, false);
 		alert.addField(messages.getString(path + "Reported"), reportedName, true);
@@ -247,7 +238,7 @@ public class DiscordBot {
 
 	public void updateReportStatus(Report r) {
 		try {
-			Status status = Status.fromRawName(r.getStatus().getRawName());
+			Status status = Status.fromRawName(r.getStatus().getConfigName());
 			String reportId = Integer.toString(r.getId());
 			String configTitle = ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Title");
 			int idIndex = configTitle.indexOf("_Id_");
@@ -255,24 +246,29 @@ public class DiscordBot {
 			List<Message> retrievedMessages = c.getHistory().retrievePast(100).complete();
 
 			for (Message msg : retrievedMessages) {
-				if (!msg.getAuthor().isBot())
+				if (!msg.getAuthor().isBot()) {
 					continue;
+				}
 
 				List<MessageEmbed> embeds = msg.getEmbeds();
-				if (embeds == null || embeds.isEmpty())
+				if (embeds == null || embeds.isEmpty()) {
 					continue;
+				}
 				MessageEmbed alert = embeds.get(0);
 				AuthorInfo author = alert.getAuthor();
-				if (author == null)
+				if (author == null) {
 					continue;
+				}
 
 				String title = author.getName();
-				if (title == null)
+				if (title == null) {
 					continue;
+				}
 
 				String id = title.substring(idIndex);
-				if (configTitle.length() >= idIndex + 4)
+				if (configTitle.length() >= idIndex + 4) {
 					id = id.replace(configTitle.substring(idIndex + 4, configTitle.length()), "");
+				}
 
 				if (id.equals(reportId)) {
 					EmbedBuilder updatedAlert = new EmbedBuilder(alert);
