@@ -243,49 +243,54 @@ public class DiscordBot {
 			String configTitle = ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Title");
 			int idIndex = configTitle.indexOf("_Id_");
 
-			List<Message> retrievedMessages = c.getHistory().retrievePast(100).complete();
+			c.getHistory().retrievePast(100).submit().whenComplete((List<Message> retrievedMessages, Throwable ex) -> {
+				if (ex == null) {
+					for (Message msg : retrievedMessages) {
+						if (!msg.getAuthor().isBot()) {
+							continue;
+						}
 
-			for (Message msg : retrievedMessages) {
-				if (!msg.getAuthor().isBot()) {
-					continue;
+						List<MessageEmbed> embeds = msg.getEmbeds();
+						if (embeds == null || embeds.isEmpty()) {
+							continue;
+						}
+						MessageEmbed alert = embeds.get(0);
+						AuthorInfo author = alert.getAuthor();
+						if (author == null) {
+							continue;
+						}
+
+						String title = author.getName();
+						if (title == null) {
+							continue;
+						}
+
+						String id = title.substring(idIndex);
+						if (configTitle.length() >= idIndex + 4) {
+							id = id.replace(configTitle.substring(idIndex + 4, configTitle.length()), "");
+						}
+
+						if (id.equals(reportId)) {
+							EmbedBuilder updatedAlert = new EmbedBuilder(alert);
+							updatedAlert.setColor(status.getColor());
+							List<Field> fields = updatedAlert.getFields();
+
+							String statusField = r.getStatusWithDetails(vm)
+							        .replace(ConfigUtils.getLineBreakSymbol(), " | ")
+							        .replaceAll("§.", "");
+
+							fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"),
+							        statusField, false));
+							updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
+							msg.editMessageEmbeds(updatedAlert.build()).queue();
+							break;
+						}
+					}
+				} else {
+					LOGGER.warn(() -> ConfigUtils.getInfoMessage("An error has occurred with Discord:",
+					        "Une erreur est survenue avec Discord:"), ex);
 				}
-
-				List<MessageEmbed> embeds = msg.getEmbeds();
-				if (embeds == null || embeds.isEmpty()) {
-					continue;
-				}
-				MessageEmbed alert = embeds.get(0);
-				AuthorInfo author = alert.getAuthor();
-				if (author == null) {
-					continue;
-				}
-
-				String title = author.getName();
-				if (title == null) {
-					continue;
-				}
-
-				String id = title.substring(idIndex);
-				if (configTitle.length() >= idIndex + 4) {
-					id = id.replace(configTitle.substring(idIndex + 4, configTitle.length()), "");
-				}
-
-				if (id.equals(reportId)) {
-					EmbedBuilder updatedAlert = new EmbedBuilder(alert);
-					updatedAlert.setColor(status.getColor());
-					List<Field> fields = updatedAlert.getFields();
-
-					String statusField = r.getStatusWithDetails(vm)
-					        .replace(ConfigUtils.getLineBreakSymbol(), " | ")
-					        .replaceAll("§.", "");
-
-					fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"),
-					        statusField, false));
-					updatedAlert.setAuthor(alert.getAuthor().getName(), null, status.getIcon());
-					msg.editMessageEmbeds(updatedAlert.build()).queue();
-					break;
-				}
-			}
+			});
 		} catch (Exception ignored) {}
 	}
 
