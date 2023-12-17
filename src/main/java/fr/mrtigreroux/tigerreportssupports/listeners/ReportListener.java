@@ -5,11 +5,11 @@ import java.util.Objects;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import fr.mrtigreroux.tigerreports.bungee.BungeeManager;
 import fr.mrtigreroux.tigerreports.events.NewReportEvent;
 import fr.mrtigreroux.tigerreports.events.ProcessReportEvent;
 import fr.mrtigreroux.tigerreports.events.ReportStatusChangeEvent;
 import fr.mrtigreroux.tigerreports.logs.Logger;
-import fr.mrtigreroux.tigerreports.managers.BungeeManager;
 import fr.mrtigreroux.tigerreports.objects.reports.Report;
 import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreportssupports.TigerReportsSupports;

@@ -73,7 +73,7 @@ public class DiscordBot {
 						        ? "```\nThe plugin TigerReportsSupports has been updated.\nThe new version "
 						                + newVersion
 						                + " is available on:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__"
-						        : "```\nLe plugin TigerReportsSupports a été mis à jour.\nLa nouvelle version "
+						        : "```\nLe plugin TigerReportsSupports a \u00E9t\u00E9 mis \u00E0 jour.\nLa nouvelle version "
 						                + newVersion
 						                + " est disponible ici:```\n__https://www.spigotmc.org/resources/tigerreportssupports.54612/__")
 						        .queue();
@@ -203,7 +203,7 @@ public class DiscordBot {
 		alert.setAuthor(messages.getString(path + "Title").replace("_Id_", Integer.toString(r.getId())), null,
 		        Status.WAITING.getIcon());
 		alert.addField(messages.getString(path + "Status"),
-		        fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getDisplayName(null).replaceAll("§.", ""),
+		        fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getDisplayName(null).replaceAll("\u00A7.", ""),
 		        false);
 		boolean serverInfo = ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
 		if (serverInfo) {
@@ -277,7 +277,7 @@ public class DiscordBot {
 
 							String statusField = r.getStatusWithDetails(vm)
 							        .replace(ConfigUtils.getLineBreakSymbol(), " | ")
-							        .replaceAll("§.", "");
+							        .replaceAll("\u00A7.", "");
 
 							fields.set(0, new Field(ConfigFile.MESSAGES.get().getString("DiscordMessages.Alert.Status"),
 							        statusField, false));
