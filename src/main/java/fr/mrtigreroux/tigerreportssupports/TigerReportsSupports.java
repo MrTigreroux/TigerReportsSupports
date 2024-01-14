@@ -11,7 +11,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import fr.mrtigreroux.tigerreports.TigerReports;
 import fr.mrtigreroux.tigerreports.logs.Logger;
 import fr.mrtigreroux.tigerreports.tasks.ResultCallback;
-import fr.mrtigreroux.tigerreports.utils.ConfigUtils;
 import fr.mrtigreroux.tigerreports.utils.MessageUtils;
 import fr.mrtigreroux.tigerreports.utils.WebUtils;
 import fr.mrtigreroux.tigerreportssupports.bots.DiscordBot;
@@ -44,23 +43,18 @@ public class TigerReportsSupports extends JavaPlugin {
     public void onEnable() {
         instance = this;
         
-        load();
-        
         PluginDescriptionFile desc = getDescription();
         if (
             !desc.getName().equals("TigerReportsSupports")
                     || desc.getAuthors().size() != 1
                     || !desc.getAuthors().contains("MrTigreroux")
         ) {
-            Logger.CONFIG.error(
-                    ConfigUtils.getInfoMessage(
-                            "The file plugin.yml has been edited without authorization.",
-                            "Le fichier plugin.yml a ete modifie sans autorisation."
-                    )
-            );
-            Bukkit.shutdown();
+            Logger.CONFIG.error("The file plugin.yml has been edited without authorization.");
+            Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+        
+        load();
     }
     
     public void load() {
@@ -94,7 +88,10 @@ public class TigerReportsSupports extends JavaPlugin {
                     discordBot = new DiscordBot(TigerReportsSupports.this, tr.getVaultManager());
                     discordBot.connect(newVersion);
                     Bukkit.getPluginManager()
-                            .registerEvents(new ReportListener(discordBot, tr.getBungeeManager()), TigerReportsSupports.this);
+                            .registerEvents(
+                                    new ReportListener(discordBot, tr.getBungeeManager()),
+                                    TigerReportsSupports.this
+                            );
                 }
             }
             
