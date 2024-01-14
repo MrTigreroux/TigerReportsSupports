@@ -15,29 +15,29 @@ import net.dv8tion.jda.api.hooks.EventListener;
  */
 
 public class DiscordListener implements EventListener {
-
-	private final DiscordBot bot;
-
-	public DiscordListener(DiscordBot bot) {
-		super();
-		this.bot = Objects.requireNonNull(bot);
-	}
-
-	@Override
-	public void onEvent(GenericEvent event) {
-		if (event instanceof MessageReceivedEvent) {
-			MessageReceivedEvent e = (MessageReceivedEvent) event;
-			Logger.EVENTS.info(() -> "DiscordListener: onEvent(): MessageReceivedEvent: " + e);
-			if (e.getChannelType().equals(ChannelType.TEXT)) {
-				User u = e.getAuthor();
-				if (!u.isBot()) {
-					String message = e.getMessage().getContentRaw().toLowerCase();
-					if (message.startsWith("/tigerreports ")) {
-						bot.onCommand(e.getTextChannel(), message.substring(14), u);
-					}
-				}
-			}
-		}
-	}
-
+    
+    private final DiscordBot bot;
+    
+    public DiscordListener(DiscordBot bot) {
+        super();
+        this.bot = Objects.requireNonNull(bot);
+    }
+    
+    @Override
+    public void onEvent(GenericEvent event) {
+        if (event instanceof MessageReceivedEvent) {
+            MessageReceivedEvent e = (MessageReceivedEvent) event;
+            Logger.EVENTS.info(() -> "DiscordListener: onEvent(): MessageReceivedEvent: " + e);
+            if (e.getChannelType().equals(ChannelType.TEXT)) {
+                User u = e.getAuthor();
+                if (!u.isBot()) {
+                    String message = e.getMessage().getContentRaw().toLowerCase();
+                    if (message.startsWith("/tigerreports ")) {
+                        bot.onCommand(e.getTextChannel(), message.substring(14), u);
+                    }
+                }
+            }
+        }
+    }
+    
 }
