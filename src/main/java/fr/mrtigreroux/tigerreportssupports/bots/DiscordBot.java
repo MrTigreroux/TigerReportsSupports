@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.slf4j.LoggerFactory;
 
 import fr.mrtigreroux.tigerreports.logs.Logger;
 import fr.mrtigreroux.tigerreports.managers.VaultManager;
@@ -48,12 +47,6 @@ public class DiscordBot {
     }
     
     public void connect(String newVersion) {
-        try {
-            ch.qos.logback.classic.Logger logger =
-                    (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("net.dv8tion.jda");
-            logger.setLevel(ch.qos.logback.classic.Level.WARN);
-        } catch (Exception ignored) {}
-        
         String token = ConfigFile.CONFIG.get().getString("Config.Discord.Token");
         if (token == null || token.isEmpty()) {
             Logger.CONFIG.error(
@@ -121,7 +114,9 @@ public class DiscordBot {
             }
         }
         sendMessage(
-                ConfigFile.MESSAGES.get().getString("DiscordMessages.Connected").replace("_Channel_", c.getAsMention())
+                ConfigFile.MESSAGES.get()
+                        .getString("DiscordMessages.Connected")
+                        .replace("_Channel_", c.getAsMention())
         );
     }
     
@@ -153,13 +148,13 @@ public class DiscordBot {
     
     public void onCommand(TextChannel channel, String command, User u) {
         if (
-            !ConfigFile.CONFIG.get()
-                    .getStringList("Config.Discord.Managers")
-                    .contains(u.getName() + "#" + u.getDiscriminator())
+            !ConfigFile.CONFIG.get().getStringList("Config.Discord.Managers").contains(u.getName())
         ) {
             if (canSendMessage()) {
                 channel.sendMessage(
-                        ConfigFile.MESSAGES.get().getString("DiscordMessages.No-permission").replace("_User_", u.getAsMention())
+                        ConfigFile.MESSAGES.get()
+                                .getString("DiscordMessages.No-permission")
+                                .replace("_User_", u.getAsMention())
                 ).queue();
             }
             return;
@@ -167,13 +162,8 @@ public class DiscordBot {
         switch (command) {
             case "reload":
                 trs.unload();
-                Bukkit.getScheduler().runTaskLater(trs, new Runnable() {
-                    
-                    @Override
-                    public void run() {
-                        trs.load();
-                    }
-                    
+                Bukkit.getScheduler().runTaskLater(trs, () -> {
+                    trs.load();
                 }, 20);
                 break;
             case "stop":
@@ -182,7 +172,9 @@ public class DiscordBot {
             default:
                 if (canSendMessage()) {
                     channel.sendMessage(
-                            ConfigFile.MESSAGES.get().getString("DiscordMessages.Invalid-command").replace("_User_", u.getAsMention())
+                            ConfigFile.MESSAGES.get()
+                                    .getString("DiscordMessages.Invalid-command")
+                                    .replace("_User_", u.getAsMention())
                     ).queue();
                 }
                 break;
@@ -195,7 +187,9 @@ public class DiscordBot {
         }
         if (!c.getGuild().getSelfMember().hasPermission(c, Permission.MESSAGE_EMBED_LINKS)) {
             c.sendMessage(
-                    (ConfigUtils.getInfoLanguage().equalsIgnoreCase("English") ? "I can't send embeds in this channel. Please give me the permission." : "Je ne peux pas envoyer des embeds dans ce canal. Merci de me donner la permission.")
+                    (ConfigUtils.getInfoLanguage().equalsIgnoreCase("English")
+                            ? "I can't send embeds in this channel. Please give me the permission."
+                            : "Je ne peux pas envoyer des embeds dans ce canal. Merci de me donner la permission.")
             ).queue();
             return;
         }
@@ -231,7 +225,9 @@ public class DiscordBot {
         );
         alert.addField(
                 messages.getString(path + "Status"),
-                fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getDisplayName(null).replaceAll("\u00A7.", ""), false
+                fr.mrtigreroux.tigerreports.data.constants.Status.WAITING.getDisplayName(null)
+                        .replaceAll("\u00A7.", ""),
+                false
         );
         boolean serverInfo =
                 ConfigUtils.isEnabled(ConfigFile.CONFIG.get(), "Config.Discord.ServerInfo");
@@ -263,7 +259,10 @@ public class DiscordBot {
             }
         }
         sendMessage(
-                ConfigFile.MESSAGES.get().getString("DiscordMessages.Report-processed").replace("_Id_", Integer.toString(r.getId())).replace("_Staff_", staff)
+                ConfigFile.MESSAGES.get()
+                        .getString("DiscordMessages.Report-processed")
+                        .replace("_Id_", Integer.toString(r.getId()))
+                        .replace("_Staff_", staff)
         );
         updateReportStatus(r);
     }
@@ -303,7 +302,9 @@ public class DiscordBot {
                                 String id = title.substring(idIndex);
                                 if (configTitle.length() >= idIndex + 4) {
                                     id = id.replace(
-                                            configTitle.substring(idIndex + 4, configTitle.length()), ""
+                                            configTitle
+                                                    .substring(idIndex + 4, configTitle.length()),
+                                            ""
                                     );
                                 }
                                 

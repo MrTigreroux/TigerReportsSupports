@@ -13,7 +13,7 @@ Config:
     # Text Channel ID for the alerts / Identifiant du canal texte pour les alertes
     
     Managers: none
-#     - pseudo#1234
+#     - pseudo
     # List of Discord users who can use /tigerreports command / Liste des utilisateurs du Discord qui peuvent utiliser la commande /tigerreports
     
     ServerInfo: yes
